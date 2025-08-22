@@ -22,7 +22,7 @@ pipeline{
             steps {
                 script {
                     def msg = sh(returnStdout: true, script: "git log -1 --pretty=%B").trim()
-                    if (msg =~ /\[skip ci\]/i) {
+                    if (msg.toLowerCase().contains('[skip ci]')) {
                         echo 'Found [skip ci]; stopping.'
                         currentBuild.result = 'SUCCESS'
                         error('Skip build')
@@ -30,7 +30,7 @@ pipeline{
                 }
             }
         }
-        
+
         stage("Verify git version"){
             steps{
                 sh 'git --version'
