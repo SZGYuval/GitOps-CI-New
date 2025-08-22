@@ -173,10 +173,27 @@ pipeline{
                 script {
                     env.TAG = sh(returnStdout: true, script: "tr -d '\\r\\n' < VERSION").trim()
                 }
-                dir('gitops-cd') {
-                    sh '''                
-                        sed -i -E 's|(^[[:space:]]*image:[[:space:]]*).+|\1'"${DOCKER_REPO}:${TAG}"'|' deployment.yaml
-                    '''                    
+                withCredentials([string(credentialsId: 'github-creds', variable: 'GITHUB_TOKEN')]) {
+                    dir('gitops-cd') {
+                        sh '''                
+                            sed -i -E 's|(^[[:space:]]*image:[[:space:]]*).+|\1'"${DOCKER_REPO}:${TAG}"'|' deployment.yaml
+
+                            git config user.name "jenkins"
+                            git config user.email "jenkins@local"
+
+                            if git diff --quiet -- "deployment.yaml"; then
+                                echo "No image change detected; skipping push"
+                                exit 0
+                            fi
+
+                            git add deployment.yaml
+                            git commit -m "update deployment manifest"
+
+                            REMOTE="$(git config --get remote.origin.url)"
+                            PUSH_URL="https://${GITHUB_TOKEN}@{REMOTE#https://}"
+                            git push "$PUSH_URL" "HEAD:main"
+                        ''' 
+                    }                   
                 }
             }
         }
