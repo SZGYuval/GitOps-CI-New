@@ -49,6 +49,7 @@ pipeline{
                     PATCH=$(echo "$CUR" | cut -d. -f3)
                     
                     LOG="$(git log -1 --pretty=%B | tr -d '\\r')"
+                    echo $LOG
 
                     if [[ "$LOG" == *major* ]]; then
                         MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0
@@ -97,7 +98,7 @@ pipeline{
                     TAG="$(tr -d '\\r\\n' < VERSION)"
                     IMAGE=$DOCKER_REPO
                     echo "Building ${IMAGE}:${TAG}"
-                    docker build -t "${IMAGE}:${TAG}"
+                    docker build -t "${IMAGE}:${TAG}" .
                 '''      
             }
         }
