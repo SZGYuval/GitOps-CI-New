@@ -9,6 +9,7 @@ pipeline{
     environment {
         REPO_URL = 'https://github.com/SZGYuval/GitOps-CI-New.git'
         DOCKER_REPO = 'szgyuval123/gitops-repo'
+        SKIP_CI = 'false'
     }
 
     stages{
@@ -31,6 +32,7 @@ pipeline{
         }
 
         stage("Verify git version"){
+            when { expression { env.SKIP_CI != 'true' } }
             steps{
                 sh 'git --version'
                 sh 'docker --version'
@@ -38,6 +40,7 @@ pipeline{
         }
 
         stage("Tag Image") {
+            when { expression { env.SKIP_CI != 'true' } }
             steps {
                 sh '''
                     set -euo pipefail
@@ -67,6 +70,7 @@ pipeline{
         }
 
         stage("Push changes to git repository") {
+            when { expression { env.SKIP_CI != 'true' } }
             steps {
                 withCredentials([string(credentialsId: 'github-creds', variable: 'GITHUB_TOKEN')]) {
                     sh '''
@@ -90,6 +94,7 @@ pipeline{
         }
 
         stage("Building Docker image") {
+            when { expression { env.SKIP_CI != 'true' } }
             steps { 
                 sh '''
                     set -euo pipefail
