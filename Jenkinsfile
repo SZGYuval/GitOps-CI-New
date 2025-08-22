@@ -190,7 +190,7 @@ pipeline{
                             git commit -m "update deployment manifest"
 
                             REMOTE="$(git config --get remote.origin.url)"
-                            PUSH_URL="https://${GITHUB_TOKEN}@{REMOTE#https://}"
+                            PUSH_URL="https://${GITHUB_TOKEN}@${REMOTE#https://}"
                             git push "$PUSH_URL" "HEAD:main"
                         ''' 
                     }                   
