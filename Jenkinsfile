@@ -70,7 +70,7 @@ pipeline{
                         git commit -m "new image version"
 
                         PUSH_URL="https://${GITHUB_TOKEN}@${REPO_URL#https://}"
-                        git push "$PUSH_URL" "main"
+                        git push "$PUSH_URL" "HEAD:main"
                     '''
                 }
             }
