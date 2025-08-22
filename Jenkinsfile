@@ -25,7 +25,6 @@ pipeline{
                     if (msg.toLowerCase().contains('[skip ci]')) {
                         echo 'Found [skip ci]; stopping.'
                         currentBuild.result = 'SUCCESS'
-                        error('Skip build')
                     }
                 }
             }
@@ -47,9 +46,8 @@ pipeline{
                     MAJOR=$(echo "$CUR" | cut -d. -f1)
                     MINOR=$(echo "$CUR" | cut -d. -f2)
                     PATCH=$(echo "$CUR" | cut -d. -f3)
-                    
-                    LOG="$(git log -1 --pretty=%B | tr -d '\\r')"
-                    echo $LOG
+
+                    LOG="$(git log -1 --no-merges --pretty=%B | tr -d '\r')"
 
                     if [[ "$LOG" == *major* ]]; then
                         MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0
