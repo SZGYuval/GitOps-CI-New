@@ -149,6 +149,19 @@ pipeline{
                 } 
             }
         }
+
+        stage ('Cloning Repository') {
+            when {
+                beforeAgent true
+                not {environment name: 'SKIP_CI', value: 'true'}
+            }
+
+            steps {
+                dir('gitops-cd') {
+                    git branch: 'main', changelog: false, poll: false, url: 'https://github.com/SZGYuval/GitOps-CD'
+                }
+            }
+        }
     }
 
 }
