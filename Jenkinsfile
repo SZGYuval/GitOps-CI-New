@@ -175,8 +175,9 @@ pipeline{
                 }
                 withCredentials([string(credentialsId: 'github-creds', variable: 'GITHUB_TOKEN')]) {
                     dir('gitops-cd') {
-                        sh '''                
-                            sed -i -E 's|(^[[:space:]]*image:[[:space:]]*).+|\1'"${DOCKER_REPO}:${TAG}"'|' deployment.yaml
+                        sh ''' 
+                            sed -i 's/\r$//' deployment.yaml               
+                            sed -i -E "s|(^[[:space:]]*image:[[:space:]]*).+|\\1${DOCKER_REPO}:${TAG}|" deployment.yaml
 
                             git config user.name "jenkins"
                             git config user.email "jenkins@local"
