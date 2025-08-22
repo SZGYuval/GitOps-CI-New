@@ -8,6 +8,7 @@ pipeline{
 
     environment {
         REPO_URL = 'https://github.com/SZGYuval/GitOps-CI-New.git'
+        DOCKER_REPO = 'szgyuval123/gitops-repo'
     }
 
     stages{
@@ -17,6 +18,19 @@ pipeline{
             }
         }
 
+        stage('Early exit on [skip ci]') {
+            steps {
+                script {
+                    def msg = sh(returnStdout: true, script: "git log -1 --pretty=%B").trim()
+                    if (msg =~ /\[skip ci\]/i) {
+                        echo 'Found [skip ci]; stopping.'
+                        currentBuild.result = 'SUCCESS'
+                        error('Skip build')
+                    }
+                }
+            }
+        }
+        
         stage("Verify git version"){
             steps{
                 sh 'git --version'
@@ -67,12 +81,24 @@ pipeline{
                         fi
 
                         git add VERSION
-                        git commit -m "new image version"
+                        git commit -m "new image version [skip ci]"
 
                         PUSH_URL="https://${GITHUB_TOKEN}@${REPO_URL#https://}"
                         git push "$PUSH_URL" "HEAD:main"
                     '''
                 }
+            }
+        }
+
+        stage("Building Docker image") {
+            withDockerTool('docker-latest') {
+                sh '''
+                    set -euo pipefail
+                    TAG="$(tr -d '\\r\\n' < VERSION)"
+                    IMAGE=$DOCKER_REPO
+                    echo "Building ${IMAGE}:${TAG}"
+                    docker build -t "${IMAGE}:${TAG}"
+                '''
             }
         }
     }
