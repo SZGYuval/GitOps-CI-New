@@ -23,9 +23,8 @@ pipeline{
                 script {
                     def msg = sh(returnStdout: true, script: "git log -1 --pretty=%B").trim()
                     if (msg.toLowerCase().contains('[skip ci]')) {
-                        echo 'Found [skip ci]; stopping.'
-                        currentBuild.result = 'SUCCESS'
-                        exit 0
+                        echo 'Found [skip ci]; skipping remaining stages.'
+                        env.SKIP_CI = 'true'
                     }
                 }
             }
