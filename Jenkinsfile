@@ -162,6 +162,22 @@ pipeline{
                 }
             }
         }
+
+        stage ('replacing deployment manifest image and push to CD repository') {
+            when {
+                beforeAgent true
+                not {environment name: 'SKIP_CI', value: 'true'}
+            }
+
+            steps {
+                dir('gitops-cd') {
+                    sh '''
+                        TAG="$(tr -d '\\r\\n' < VERSION)"
+                        sed -i -E 's|(^[[:space:]]*image:[[:space:]]*).+|\1'"${DOCKER_REPO}:${TAG}"'|' deployment.yaml
+                    '''                    
+                }
+            }
+        }
     }
 
 }
