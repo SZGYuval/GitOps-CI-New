@@ -25,6 +25,7 @@ pipeline{
                     if (msg.toLowerCase().contains('[skip ci]')) {
                         echo 'Found [skip ci]; stopping.'
                         currentBuild.result = 'SUCCESS'
+                        exit 0
                     }
                 }
             }
