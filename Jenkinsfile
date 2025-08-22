@@ -22,7 +22,7 @@ pipeline{
 
         stage("build image") {
             steps {
-                sh(script: '''
+                sh '''
                     set -euo pipefail
 
                     CUR="$(cat VERSION | tr -d '\r\n')"
@@ -31,7 +31,7 @@ pipeline{
                     PATCH=$(echo "$CUR" | cut -d. -f3)
                     
                     LOG="$(git log -1 --pretty=%B | tr -d '\\r')"
-                    shopt -s nocasematch
+
                     if [[ "$LOG" == *major* ]]; then
                         MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0
                     elif [[ "$LOG" == *minor* ]]; then
@@ -45,7 +45,7 @@ pipeline{
                     echo "Current: $CUR"
                     echo "Next:    $NEXT"
                     echo "$NEXT" > VERSION
-                ''', shell: '/bin/bash')
+                '''
             }
         }
     }
