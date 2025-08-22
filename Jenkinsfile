@@ -6,6 +6,10 @@ pipeline{
         dockerTool 'docker-latest'
     }
 
+    environment {
+        REPO_URL = 'https://github.com/SZGYuval/GitOps-CI-New.git'
+    }
+
     stages{
         stage('Checkout') {
             steps {
@@ -20,7 +24,7 @@ pipeline{
             }
         }
 
-        stage("build image") {
+        stage("Tag Image") {
             steps {
                 sh '''
                     set -euo pipefail
@@ -46,6 +50,29 @@ pipeline{
                     echo "Next:    $NEXT"
                     echo "$NEXT" > VERSION
                 '''
+            }
+        }
+
+        stage("Push changes to git repository") {
+            steps {
+                withCredentials([string(credentialsId: 'github-creds', variable: 'GITHUB_TOKEN')]) {
+                    sh '''
+                        set -euo pipefail
+                        git config user.name  "jenkins"
+                        git config user.email "jenkins@local"
+
+                        if git diff --quiet -- VERSION; then
+                           echo "VERSION unchanged; skipping push"
+                           exit 0
+                        fi
+
+                        git add VERSION
+                        git commit -m "new image version"
+
+                        PUSH_URL="https://x-access-token:${GITHUB_TOKEN}@${REPO_URL#https://}"
+                        git push "$PUSH_URL" "main"
+                    '''
+                }
             }
         }
     }
