@@ -91,16 +91,14 @@ pipeline{
         }
 
         stage("Building Docker image") {
-            steps {
-                withDockerTool('docker-latest') {
-                    sh '''
-                        set -euo pipefail
-                        TAG="$(tr -d '\\r\\n' < VERSION)"
-                        IMAGE=$DOCKER_REPO
-                        echo "Building ${IMAGE}:${TAG}"
-                        docker build -t "${IMAGE}:${TAG}"
-                    '''
-                }
+            steps { 
+                sh '''
+                    set -euo pipefail
+                    TAG="$(tr -d '\\r\\n' < VERSION)"
+                    IMAGE=$DOCKER_REPO
+                    echo "Building ${IMAGE}:${TAG}"
+                    docker build -t "${IMAGE}:${TAG}"
+                '''      
             }
         }
     }
