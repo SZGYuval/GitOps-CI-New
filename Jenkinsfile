@@ -120,6 +120,35 @@ pipeline{
                 '''      
             }
         }
+
+        stage("Unit Tests") {
+            when {
+                beforeAgent true
+                not {environment name: 'SKIP_CI', value: 'true'}
+            }
+
+            steps {
+                sh 'echo add unit tests!!'
+            }
+        }
+
+        stage ('Push Image') {
+            when {
+                beforeAgent true
+                not {environment name: 'SKIP_CI', value: 'true'}
+            }
+
+            steps {
+                withDockerRegistry(credentialsId: 'docker-hub-creds', url: "") {
+                    sh '''
+                        set -eu
+                        TAG="$(tr -d '\\r\\n' < VERSION)"
+                        echo "Pushing ${DOCKER_REPO}:${TAG}"
+                        docker push "${DOCKER_REPO}:${TAG}"
+                    '''
+                } 
+            }
+        }
     }
 
 }
