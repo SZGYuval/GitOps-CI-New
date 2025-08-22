@@ -170,9 +170,11 @@ pipeline{
             }
 
             steps {
+                script {
+                    env.TAG = sh(returnStdout: true, script: "tr -d '\\r\\n' < VERSION").trim()
+                }
                 dir('gitops-cd') {
-                    sh '''
-                        TAG="$(tr -d '\\r\\n' < VERSION)"
+                    sh '''                
                         sed -i -E 's|(^[[:space:]]*image:[[:space:]]*).+|\1'"${DOCKER_REPO}:${TAG}"'|' deployment.yaml
                     '''                    
                 }
