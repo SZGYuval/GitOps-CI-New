@@ -163,7 +163,7 @@ pipeline{
             }
         }
 
-        stage ('replacing deployment manifest image and push to CD repository') {
+        stage ('replacing deployment manifest image and push to github CD repository') {
             when {
                 beforeAgent true
                 not {environment name: 'SKIP_CI', value: 'true'}
